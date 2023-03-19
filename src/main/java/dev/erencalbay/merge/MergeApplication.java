@@ -7,9 +7,8 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 
@@ -21,8 +20,6 @@ public class MergeApplication {
 		SpringApplication.run(MergeApplication.class, args);
 		//mongoDbConnection();
 	}
-
-
 	private static void mongoDbConnection() {
 		ArrayList<String> words = new ArrayList<String>();
 		words.add("araba");
@@ -40,10 +37,23 @@ public class MergeApplication {
 		sampleDoc.append("Final", finalpres);
 		col.insertOne(sampleDoc);
 	}
-
 	@RequestMapping(value = "/index")
 	public String index() {
 		return "index";
 	}
+	@RequestMapping(value = "/savetext", method = RequestMethod.POST)
+	public ModelAndView save(@ModelAttribute User user){
+		System.out.println(user.toString());
+		System.out.println(user.getTexts());
+		for (String us: user.getTexts()) {
+			System.out.println(us);
+		}
+
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("final");
+		modelAndView.addObject("user", user);
+		return modelAndView;
+	}
+
 }
 
