@@ -11,7 +11,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Oldu</title>
+    <title>Final</title>
 </head>
 <body>
 <form action="/savetext" method="post" id="form">
@@ -22,17 +22,17 @@
             <div id="education_fields">
             </div>
             <div class="col-sm-12 nopadding" style="border:thin solid black">
-                <h4 th:text = "${user.Texts}"> </h4>
+                <p id="fulltext" th:text = "${user.Texts}"></p>
             </div>
-            <div></div>
             <div class="col-sm-11 nopadding">
                 <br/>
-                <button class="btn" type="submit"  onclick="" id="buttondownload"> <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Download </button>
+                <button class="btn" onclick="" id="jsonbtn"> <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Save </button>
             </div>
             <div class="col-sm-1 nopadding">
                 <br/>
                 <button class="btn" type="button"  onclick="relocate_home()" id="buttonback"> <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Reuse </button>
             </div>
+            <div id = "jsontext"></div>
             <div class="clear"></div>
         </div>
     </div>

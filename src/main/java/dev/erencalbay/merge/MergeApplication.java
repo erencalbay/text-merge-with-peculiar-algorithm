@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.lang.constant.Constable;
 import java.util.ArrayList;
 
 @SpringBootApplication
@@ -44,14 +45,19 @@ public class MergeApplication {
 	@RequestMapping(value = "/savetext", method = RequestMethod.POST)
 	public ModelAndView save(@ModelAttribute User user){
 		System.out.println(user.toString());
+		ArrayList<String> tmpList = new ArrayList<>();
 		for (String us: user.getTexts()) {
 			System.out.println(us);
+			tmpList.add(us);
 		}
+		mainAlgs(tmpList);
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("final");
 		modelAndView.addObject("user", user);
 		return modelAndView;
 	}
-
+	public static Constable mainAlgs(ArrayList<String> tmpList) {
+		return "string";
+	}
 }
 
