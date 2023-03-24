@@ -76,6 +76,7 @@ public class MergeApplication {
 				txtCheck2.add(tmps);
 			}
 			boolean isContain = checkContains(txtCheck1, txtCheck2);
+			System.out.println(isContain);
 			i++;
 		}
 		return finalList;
@@ -95,9 +96,43 @@ public class MergeApplication {
 		}
 		return false;
 	}
-
 	private static boolean checkFull(String txtParse2, String txtParse1) {
-		return false;
+		int similarityControl = 0;
+		int lengthShortestWord = 0;
+		int lengthTallestWord = 0;
+		int index = 0;
+		if(txtParse2.length()>txtParse1.length())
+		{
+			lengthShortestWord = txtParse1.length();
+			lengthTallestWord = txtParse2.length();
+		}
+		else
+		{
+			lengthShortestWord = txtParse2.length();
+			lengthTallestWord = txtParse1.length();
+		}
+		if(index==0 && txtParse2.charAt(index)!=txtParse1.charAt(index))
+		{
+			return false;
+		}
+		while(lengthShortestWord!=index)
+		{
+
+			if(txtParse2.charAt(index)!=txtParse1.charAt(index)) {
+				similarityControl++;
+			}
+			index++;
+		}
+		int extra = lengthTallestWord - lengthShortestWord;
+		similarityControl+=extra;
+
+		double similarityControlDouble = Double.valueOf(similarityControl);
+		double lengthTallestWordDouble = Double.valueOf(lengthTallestWord);
+		double equality = similarityControlDouble/lengthTallestWordDouble;
+		if (equality >= 2/7.) {
+			return false;
+		}
+		return true;
 	}
 }
 
