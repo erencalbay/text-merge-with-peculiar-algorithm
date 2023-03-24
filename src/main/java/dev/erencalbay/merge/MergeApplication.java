@@ -82,7 +82,22 @@ public class MergeApplication {
 	}
 
 	private static boolean checkContains(ArrayList<String> txtCheck1, ArrayList<String> txtCheck2) {
-		return true;
+
+		for (String txtParse1:txtCheck2) {
+			for (String txtParse2:txtCheck1) {
+				if(txtParse2.contains(txtParse1))
+				{
+					boolean control = checkFull(txtParse2, txtParse1);
+					if(control)
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static boolean checkFull(String txtParse2, String txtParse1) {
+		return false;
 	}
 }
 
