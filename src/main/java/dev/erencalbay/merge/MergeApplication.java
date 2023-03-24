@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 @SpringBootApplication
 @RestController
@@ -50,7 +51,10 @@ public class MergeApplication {
 			System.out.println(us);
 			tmpList.add(us);
 		}
+		long startTime = System.nanoTime();
 		finalList = mainAlgs(tmpList);
+		long endTime = System.nanoTime();
+		long duration = (endTime - startTime); // hesaplama
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("final");
 		modelAndView.addObject("user", user);
@@ -59,14 +63,16 @@ public class MergeApplication {
 	public static ArrayList<String> mainAlgs(ArrayList<String> tmpList) {
 		int hmanyText = tmpList.size();
 		int i = 0;
-		ArrayList<String> txtCheck1 = new ArrayList<>();
-		ArrayList<String> txtCheck2 = new ArrayList<>();
-		String[] tmpString1;
-		String[] tmpString2;
-		ArrayList<String> finalList = new ArrayList<>();
 
+		ArrayList<String> finalList = new ArrayList<>();
+		String finalWord = "";
+		boolean isContain = false;
 		while(hmanyText-1!=i)
 		{
+			ArrayList<String> txtCheck1 = new ArrayList<>();
+			ArrayList<String> txtCheck2 = new ArrayList<>();
+			String[] tmpString1;
+			String[] tmpString2;
 			tmpString1 = tmpList.get(i).split(" ");
 			tmpString2 = tmpList.get(i+1).split(" ");
 			for (String tmps:tmpString1) {
@@ -75,18 +81,55 @@ public class MergeApplication {
 			for (String tmps:tmpString2) {
 				txtCheck2.add(tmps);
 			}
-			boolean isContain = checkContains(txtCheck1, txtCheck2);
+			isContain = checkContains(txtCheck1, txtCheck2);
 			System.out.println(isContain);
 			i++;
+		}
+		if(isContain) {
+			queueControl(tmpList);
 		}
 		return finalList;
 	}
 
+	private static void queueControl(ArrayList<String> tmpList) {
+		int i = 0;
+		int j = 0;
+		ArrayList<String> txtCheck1 = new ArrayList<>();
+		ArrayList<String> txtCheck2 = new ArrayList<>();
+		String[] tmpString1;
+		String[] tmpString2;
+		int listSize = tmpList.size();
+		ArrayList<Integer> position = new ArrayList<>();
+		while(i!=listSize-1)
+		{
+			position.add(0);
+		}
+		i=0;
+		while(i!=listSize-1)
+		{
+			tmpString1 = tmpList.get(i).split(" ");
+			while (j!=listSize-1)
+			{
+				tmpString2 = tmpList.get(j).split(" ");
+				while(i!=j)
+				{
+					for (String tmps:tmpString1) {
+						txtCheck1.add(tmps);
+					}
+					for (String tmps:tmpString2) {
+						txtCheck2.add(tmps);
+					}
+					int txt1half = txtCheck1.size()/2;
+					int txt2half = txtCheck2.size()/2;
+				}
+			}
+		}
+	}
 	private static boolean checkContains(ArrayList<String> txtCheck1, ArrayList<String> txtCheck2) {
 
 		for (String txtParse1:txtCheck2) {
 			for (String txtParse2:txtCheck1) {
-				if(txtParse2.contains(txtParse1))
+				if(txtParse2.contains(txtParse1) || txtParse1.contains(txtParse2))
 				{
 					boolean control = checkFull(txtParse2, txtParse1);
 					if(control)
@@ -129,7 +172,7 @@ public class MergeApplication {
 		double similarityControlDouble = Double.valueOf(similarityControl);
 		double lengthTallestWordDouble = Double.valueOf(lengthTallestWord);
 		double equality = similarityControlDouble/lengthTallestWordDouble;
-		if (equality >= 2/7.) {
+		if (equality >= 3/13.) {
 			return false;
 		}
 		return true;
