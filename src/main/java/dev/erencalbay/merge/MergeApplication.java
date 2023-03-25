@@ -16,6 +16,8 @@ import java.util.ArrayList;
 @RestController
 public class MergeApplication {
 	public static String finalWord;
+	public static ArrayList<String> wordsList;
+	public static double lastDuration;
 	public static void main(String[] args) {
 		SpringApplication.run(MergeApplication.class, args);
 		//mongoDbConnection();
@@ -35,12 +37,14 @@ public class MergeApplication {
 		}
 		finalWord = mainAlgs(tmpList);
 		System.out.println("son kelime " +finalWord);
+		mongoDbConnection();
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("final");
 		modelAndView.addObject("user", user);
 		return modelAndView;
 	}
 	public static String mainAlgs(ArrayList<String> tmpList) {
+		wordsList = (ArrayList<String>) tmpList.clone();
 		int hmanyText = tmpList.size();
 		int i = 0;
 		long startTime = System.nanoTime();
@@ -71,6 +75,7 @@ public class MergeApplication {
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime); // hesaplama
 		double durationtoSecond = (double) duration / 1_000_000;
+		lastDuration = durationtoSecond;
 		System.out.println(durationtoSecond+" milisaniye.");
 		return finalWord;
 	}
@@ -101,20 +106,17 @@ public class MergeApplication {
 		return finalWord;
 	}
 	private static void mongoDbConnection() {
-		ArrayList<String> words = new ArrayList<String>();
-		words.add("araba");
-		words.add("tır");
-		String finalpres = "araba"+"tır";
 		MongoClient client = MongoClients.create("mongodb+srv://erencalbay:05kWvvz45Ohjx8E2@javaweb.jyy216v.mongodb.net/test");
-		MongoDatabase db = client.getDatabase("sampleDB");
-		MongoCollection col = db.getCollection("sampleCollection");
+		MongoDatabase db = client.getDatabase("testDB");
+		MongoCollection col = db.getCollection("testCollection");
 		Document sampleDoc = new Document();
 		int ct = 0;
-		for (String string : words) {
-			sampleDoc.append("Metin " + ct, string);
+		for (String word : wordsList) {
+			sampleDoc.append("Metin " + ct, word);
 			ct++;
 		}
-		sampleDoc.append("Final", finalpres);
+		sampleDoc.append("Final", finalWord);
+		sampleDoc.append("Duration(ms)",lastDuration);
 		col.insertOne(sampleDoc);
 	}
 	private static String findSameSub(ArrayList<String> txtCheck1, ArrayList<String> txtCheck2, int hmanyText) {
@@ -131,8 +133,18 @@ public class MergeApplication {
 			}
 		}
 		for (String str:tmpList1) {
-			finalWord+=" "+str;
+			if(finalWord.isEmpty())
+			{
+				finalWord+=str;
+
+			}
+			else
+			{
+				finalWord+=" "+str;
+			}
+
 		}
+
 		hmanyText--;
 		if(hmanyText-1==0)
 		{
