@@ -11,32 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 @SpringBootApplication
 @RestController
 public class MergeApplication {
-
+	public static String finalWord;
 	public static void main(String[] args) {
 		SpringApplication.run(MergeApplication.class, args);
 		//mongoDbConnection();
-	}
-	private static void mongoDbConnection() {
-		ArrayList<String> words = new ArrayList<String>();
-		words.add("araba");
-		words.add("tır");
-		String finalpres = "araba"+"tır";
-		MongoClient client = MongoClients.create("mongodb+srv://erencalbay:05kWvvz45Ohjx8E2@javaweb.jyy216v.mongodb.net/test");
-		MongoDatabase db = client.getDatabase("sampleDB");
-		MongoCollection col = db.getCollection("sampleCollection");
-		Document sampleDoc = new Document();
-		int ct = 0;
-		for (String string : words) {
-			sampleDoc.append("Metin " + ct, string);
-			ct++;
-		}
-		sampleDoc.append("Final", finalpres);
-		col.insertOne(sampleDoc);
 	}
 	@RequestMapping(value = "/index")
 	public String index() {
@@ -51,21 +33,18 @@ public class MergeApplication {
 			System.out.println(us);
 			tmpList.add(us);
 		}
-		long startTime = System.nanoTime();
-		finalList = mainAlgs(tmpList);
-		long endTime = System.nanoTime();
-		long duration = (endTime - startTime); // hesaplama
+		finalWord = mainAlgs(tmpList);
+		System.out.println("son kelime " +finalWord);
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("final");
 		modelAndView.addObject("user", user);
 		return modelAndView;
 	}
-	public static ArrayList<String> mainAlgs(ArrayList<String> tmpList) {
+	public static String mainAlgs(ArrayList<String> tmpList) {
 		int hmanyText = tmpList.size();
 		int i = 0;
-
+		long startTime = System.nanoTime();
 		ArrayList<String> finalList = new ArrayList<>();
-		String finalWord = "";
 		boolean isContain = false;
 		while(hmanyText-1!=i)
 		{
@@ -86,12 +65,84 @@ public class MergeApplication {
 			i++;
 		}
 		if(isContain) {
-			queueControl(tmpList);
+			//firstqueueControl(tmpList);
+			finalWord = mainMergeFunc(tmpList);
 		}
-		return finalList;
+		long endTime = System.nanoTime();
+		long duration = (endTime - startTime); // hesaplama
+		double durationtoSecond = (double) duration / 1_000_000;
+		System.out.println(durationtoSecond+" milisaniye.");
+		return finalWord;
 	}
-
-	private static void queueControl(ArrayList<String> tmpList) {
+	private static String mainMergeFunc(ArrayList<String> tmpList) {
+		int hmanyText = tmpList.size();
+		int i = 0;
+		long startTime = System.nanoTime();
+		ArrayList<String> finalList = new ArrayList<>();
+		boolean isContain = false;
+		while(hmanyText-1!=i)
+		{
+			ArrayList<String> txtCheck1 = new ArrayList<>();
+			ArrayList<String> txtCheck2 = new ArrayList<>();
+			String[] tmpString1;
+			String[] tmpString2;
+			tmpString1 = tmpList.get(i).split(" ");
+			tmpString2 = tmpList.get(i+1).split(" ");
+			for (String tmps:tmpString1) {
+				txtCheck1.add(tmps);
+			}
+			for (String tmps:tmpString2) {
+				txtCheck2.add(tmps);
+			}
+			finalWord = "";
+			finalWord = findSameSub(txtCheck1,txtCheck2, hmanyText);
+			i++;
+		}
+		return finalWord;
+	}
+	private static void mongoDbConnection() {
+		ArrayList<String> words = new ArrayList<String>();
+		words.add("araba");
+		words.add("tır");
+		String finalpres = "araba"+"tır";
+		MongoClient client = MongoClients.create("mongodb+srv://erencalbay:05kWvvz45Ohjx8E2@javaweb.jyy216v.mongodb.net/test");
+		MongoDatabase db = client.getDatabase("sampleDB");
+		MongoCollection col = db.getCollection("sampleCollection");
+		Document sampleDoc = new Document();
+		int ct = 0;
+		for (String string : words) {
+			sampleDoc.append("Metin " + ct, string);
+			ct++;
+		}
+		sampleDoc.append("Final", finalpres);
+		col.insertOne(sampleDoc);
+	}
+	private static String findSameSub(ArrayList<String> txtCheck1, ArrayList<String> txtCheck2, int hmanyText) {
+		ArrayList<String> tmpList1;
+		ArrayList<String> tmpList2;
+		tmpList1 = (ArrayList<String>) txtCheck1.clone();
+		tmpList2 = (ArrayList<String>) txtCheck2.clone();
+		for (String txt1:txtCheck1) {
+			for (String txt2:txtCheck2) {
+				boolean isMean = checkFull(txt1, txt2);
+				if(txt1.contains(txt2) && isMean==true){
+					tmpList1.remove(txt1);
+				}
+			}
+		}
+		for (String str:tmpList1) {
+			finalWord+=" "+str;
+		}
+		hmanyText--;
+		if(hmanyText-1==0)
+		{
+			for (String str:tmpList2) {
+				finalWord+=" "+str;
+			}
+		}
+		return finalWord;
+	}
+	private static void firstqueueControl(ArrayList<String> tmpList) {
 		int i = 0;
 		int j = 0;
 		ArrayList<String> txtCheck1 = new ArrayList<>();
@@ -100,18 +151,19 @@ public class MergeApplication {
 		String[] tmpString2;
 		int listSize = tmpList.size();
 		ArrayList<Integer> position = new ArrayList<>();
-		while(i!=listSize-1)
+		while(i!=listSize)
 		{
 			position.add(0);
+			i++;
 		}
 		i=0;
-		while(i!=listSize-1)
+		while(i!=listSize)
 		{
 			tmpString1 = tmpList.get(i).split(" ");
-			while (j!=listSize-1)
+			while (j!=listSize)
 			{
 				tmpString2 = tmpList.get(j).split(" ");
-				while(i!=j)
+				if(i!=j)
 				{
 					for (String tmps:tmpString1) {
 						txtCheck1.add(tmps);
@@ -121,12 +173,15 @@ public class MergeApplication {
 					}
 					int txt1half = txtCheck1.size()/2;
 					int txt2half = txtCheck2.size()/2;
+					System.out.println(txt1half);
+					System.out.println(txt2half);
 				}
+				j++;
 			}
+			i++;
 		}
 	}
 	private static boolean checkContains(ArrayList<String> txtCheck1, ArrayList<String> txtCheck2) {
-
 		for (String txtParse1:txtCheck2) {
 			for (String txtParse2:txtCheck1) {
 				if(txtParse2.contains(txtParse1) || txtParse1.contains(txtParse2))
