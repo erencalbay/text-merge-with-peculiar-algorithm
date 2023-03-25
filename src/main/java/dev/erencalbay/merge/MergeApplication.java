@@ -18,6 +18,7 @@ public class MergeApplication {
 	public static String finalWord;
 	public static ArrayList<String> wordsList;
 	public static double lastDuration;
+	public static int temphmany;
 	public static void main(String[] args) {
 		SpringApplication.run(MergeApplication.class, args);
 		//mongoDbConnection();
@@ -35,6 +36,7 @@ public class MergeApplication {
 			System.out.println(us);
 			tmpList.add(us);
 		}
+		temphmany = tmpList.size();
 		finalWord = mainAlgs(tmpList);
 		System.out.println("son kelime " +finalWord);
 		mongoDbConnection();
@@ -85,6 +87,7 @@ public class MergeApplication {
 		long startTime = System.nanoTime();
 		ArrayList<String> finalList = new ArrayList<>();
 		boolean isContain = false;
+		finalWord = "";
 		while(hmanyText-1!=i)
 		{
 			ArrayList<String> txtCheck1 = new ArrayList<>();
@@ -99,7 +102,7 @@ public class MergeApplication {
 			for (String tmps:tmpString2) {
 				txtCheck2.add(tmps);
 			}
-			finalWord = "";
+
 			finalWord = findSameSub(txtCheck1,txtCheck2, hmanyText);
 			i++;
 		}
@@ -145,8 +148,8 @@ public class MergeApplication {
 
 		}
 
-		hmanyText--;
-		if(hmanyText-1==0)
+		temphmany--;
+		if(temphmany-1==0)
 		{
 			for (String str:tmpList2) {
 				finalWord+=" "+str;
