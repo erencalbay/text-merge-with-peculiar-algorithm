@@ -31,7 +31,6 @@ public class MergeApplication {
 	public ModelAndView save(@ModelAttribute User user){
 		System.out.println(user.toString());
 		ArrayList<String> tmpList = new ArrayList<>();
-		ArrayList<String> finalList = new ArrayList<>();
 		for (String us: user.getTexts()) {
 			System.out.println(us);
 			tmpList.add(us);
@@ -42,7 +41,7 @@ public class MergeApplication {
 		mongoDbConnection();
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("final");
-		modelAndView.addObject("user", user);
+		modelAndView.addObject("message", finalWord);
 		return modelAndView;
 	}
 	public static String mainAlgs(ArrayList<String> tmpList) {
@@ -74,6 +73,9 @@ public class MergeApplication {
 			//firstqueueControl(tmpList);
 			finalWord = mainMergeFunc(tmpList);
 		}
+		else {
+			finalWord = "Eşleştirme olmadı - Birleştirme yapılamadı.";
+		}
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime); // hesaplama
 		double durationtoSecond = (double) duration / 1_000_000;
@@ -103,7 +105,7 @@ public class MergeApplication {
 				txtCheck2.add(tmps);
 			}
 
-			finalWord = findSameSub(txtCheck1,txtCheck2, hmanyText);
+			finalWord = findSameSub(txtCheck1,txtCheck2);
 			i++;
 		}
 		return finalWord;
@@ -113,7 +115,7 @@ public class MergeApplication {
 		MongoDatabase db = client.getDatabase("testDB");
 		MongoCollection col = db.getCollection("testCollection");
 		Document sampleDoc = new Document();
-		int ct = 0;
+		int ct = 1;
 		for (String word : wordsList) {
 			sampleDoc.append("Metin " + ct, word);
 			ct++;
@@ -122,7 +124,7 @@ public class MergeApplication {
 		sampleDoc.append("Duration(ms)",lastDuration);
 		col.insertOne(sampleDoc);
 	}
-	private static String findSameSub(ArrayList<String> txtCheck1, ArrayList<String> txtCheck2, int hmanyText) {
+	private static String findSameSub(ArrayList<String> txtCheck1, ArrayList<String> txtCheck2) {
 		ArrayList<String> tmpList1;
 		ArrayList<String> tmpList2;
 		tmpList1 = (ArrayList<String>) txtCheck1.clone();
