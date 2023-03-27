@@ -72,13 +72,26 @@ public class MergeApplication {
 			for (String tmps:tmpString2) {
 				txtCheck2.add(tmps);
 			}
-			isContain = checkContains(txtCheck1, txtCheck2);
+			if(txtCheck1.size() == 1 && txtCheck2.size() == 1) {
+				String txt1 = txtCheck1.get(0);
+				String txt2 = txtCheck2.get(0);
+				boolean isSame = checkFull(txt1,txt2);
+				if(isSame) {
+					finalWord = "Daha Yapılmadı";
+				}
+				else {
+					finalWord = "Eşleştirme olmadı - Birleştirme yapılamadı.";
+				}
+			}
+			else {
+				isContain = checkContains(txtCheck1, txtCheck2);
+			}
 			System.out.println(isContain);
 			i++;
 		}
 		if(isContain) {
-			//firstqueueControl(tmpList);
-			finalWord = mainMergeFunc(tmpList);
+			firstqueueControl(tmpList);
+			finalWord = mainMergeFunc(wordsList);
 		}
 		else {
 			finalWord = "Eşleştirme olmadı - Birleştirme yapılamadı.";
@@ -139,7 +152,7 @@ public class MergeApplication {
 		for (String txt1:txtCheck1) {
 			for (String txt2:txtCheck2) {
 				boolean isMean = checkFull(txt1, txt2);
-				if(txt1.contains(txt2) && isMean==true){
+				if((txt1.contains(txt2) || txt2.contains(txt1)) && isMean==true){
 					tmpList1.remove(txt1);
 				}
 			}
@@ -154,9 +167,7 @@ public class MergeApplication {
 			{
 				finalWord+=" "+str;
 			}
-
 		}
-
 		temphmany--;
 		if(temphmany-1==0)
 		{
@@ -195,6 +206,15 @@ public class MergeApplication {
 					for (String tmps:tmpString2) {
 						txtCheck2.add(tmps);
 					}
+					int boolif = queueIndexControl(txtCheck1, txtCheck2);
+					if(boolif == 1) {
+						String tmpStr1 = tmpList.get(i);
+						String tmpStr2 = tmpList.get(j);
+						System.out.println("ilk " +wordsList);
+						wordsList.set(i, tmpStr2);
+						wordsList.set(j, tmpStr1);
+						System.out.println("son " +wordsList);
+					}
 					int txt1half = txtCheck1.size()/2;
 					int txt2half = txtCheck2.size()/2;
 					System.out.println(txt1half);
@@ -204,6 +224,26 @@ public class MergeApplication {
 			}
 			i++;
 		}
+	}
+	private static int queueIndexControl(ArrayList<String> txtCheck1, ArrayList<String> txtCheck2) {
+		for (String txt1:txtCheck1) {
+			for (String txt2:txtCheck2) {
+				if(txt1.contains(txt2) || txt2.contains(txt1)) {
+					boolean isFull= checkFull(txt1, txt2);
+					if(isFull) {
+						int txt1index = txtCheck1.indexOf(txt1);
+						int txt2index = txtCheck2.indexOf(txt2);
+						if(txt1index>txt2index) {
+							return 0;
+						}
+						else {
+							return 1;
+						}
+					}
+				}
+			}
+		}
+		return 0;
 	}
 	private static boolean checkContains(ArrayList<String> txtCheck1, ArrayList<String> txtCheck2) {
 		for (String txtParse1:txtCheck2) {
