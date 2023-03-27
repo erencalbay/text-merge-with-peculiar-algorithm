@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 @SpringBootApplication
 @RestController
@@ -56,7 +58,6 @@ public class MergeApplication {
 		int hmanyText = tmpList.size();
 		int i = 0;
 		long startTime = System.nanoTime();
-		ArrayList<String> finalList = new ArrayList<>();
 		boolean isContain = false;
 		while(hmanyText-1!=i)
 		{
@@ -66,12 +67,8 @@ public class MergeApplication {
 			String[] tmpString2;
 			tmpString1 = tmpList.get(i).split(" ");
 			tmpString2 = tmpList.get(i+1).split(" ");
-			for (String tmps:tmpString1) {
-				txtCheck1.add(tmps);
-			}
-			for (String tmps:tmpString2) {
-				txtCheck2.add(tmps);
-			}
+			Collections.addAll(txtCheck1, tmpString1);
+			Collections.addAll(txtCheck2, tmpString2);
 			if(txtCheck1.size() == 1 && txtCheck2.size() == 1) {
 				String txt1 = txtCheck1.get(0);
 				String txt2 = txtCheck2.get(0);
@@ -92,6 +89,7 @@ public class MergeApplication {
 		if(isContain) {
 			firstqueueControl(tmpList);
 			finalWord = mainMergeFunc(wordsList);
+			finalWord = duplicateControl(finalWord);
 		}
 		else {
 			finalWord = "Eşleştirme olmadı - Birleştirme yapılamadı.";
@@ -106,9 +104,6 @@ public class MergeApplication {
 	private static String mainMergeFunc(ArrayList<String> tmpList) {
 		int hmanyText = tmpList.size();
 		int i = 0;
-		long startTime = System.nanoTime();
-		ArrayList<String> finalList = new ArrayList<>();
-		boolean isContain = false;
 		finalWord = "";
 		while(hmanyText-1!=i)
 		{
@@ -118,12 +113,8 @@ public class MergeApplication {
 			String[] tmpString2;
 			tmpString1 = tmpList.get(i).split(" ");
 			tmpString2 = tmpList.get(i+1).split(" ");
-			for (String tmps:tmpString1) {
-				txtCheck1.add(tmps);
-			}
-			for (String tmps:tmpString2) {
-				txtCheck2.add(tmps);
-			}
+			Collections.addAll(txtCheck1, tmpString1);
+			Collections.addAll(txtCheck2, tmpString2);
 
 			finalWord = findSameSub(txtCheck1,txtCheck2);
 			i++;
@@ -131,8 +122,10 @@ public class MergeApplication {
 		return finalWord;
 	}
 	private static void mongoDbConnection() {
-		MongoClient client = MongoClients.create("mongodb+srv://erencalbay:05kWvvz45Ohjx8E2@javaweb.jyy216v.mongodb.net/test");
-		MongoDatabase db = client.getDatabase("testDB");
+		MongoDatabase db;
+		try (MongoClient client = MongoClients.create("mongodb+srv://erencalbay:05kWvvz45Ohjx8E2@javaweb.jyy216v.mongodb.net/test")) {
+			db = client.getDatabase("testDB");
+		}
 		MongoCollection col = db.getCollection("testCollection");
 		Document sampleDoc = new Document();
 		int ct = 1;
@@ -149,24 +142,28 @@ public class MergeApplication {
 		ArrayList<String> tmpList2;
 		tmpList1 = (ArrayList<String>) txtCheck1.clone();
 		tmpList2 = (ArrayList<String>) txtCheck2.clone();
+		ArrayList<String> tmpListforcontrol1 = (ArrayList<String>) txtCheck1.clone();
+		ArrayList<String> tmpListforcontrol2 = (ArrayList<String>) txtCheck2.clone();
 		for (String txt1:txtCheck1) {
 			for (String txt2:txtCheck2) {
 				boolean isMean = checkFull(txt1, txt2);
-				if((txt1.contains(txt2) || txt2.contains(txt1)) && isMean==true){
-					tmpList1.remove(txt1);
+				if((txt1.contains(txt2) || txt2.contains(txt1)) && isMean){
+					int word1index = tmpListforcontrol1.indexOf(txt1);
+					int word2index = tmpListforcontrol2.indexOf(txt2);
+					if(word1index == word2index && word1index==0) {
+						tmpList2.remove(txt2);
+					}
+					else {
+						tmpList1.remove(txt1);
+					}
 				}
 			}
 		}
 		for (String str:tmpList1) {
-			if(finalWord.isEmpty())
-			{
-				finalWord+=str;
-
-			}
-			else
-			{
-				finalWord+=" "+str;
-			}
+			if(finalWord.isEmpty()) {
+				finalWord += str;
+			} else
+				finalWord += " " + str;
 		}
 		temphmany--;
 		if(temphmany-1==0)
@@ -177,20 +174,40 @@ public class MergeApplication {
 		}
 		return finalWord;
 	}
+	private static String duplicateControl(String finalWord) {
+		String[] finalWordList = finalWord.split(" ");
+		ArrayList<String> finalWordListArray = new ArrayList<>();
+		finalWordListArray.addAll(Arrays.asList(finalWordList));
+		int dupcontrolsize = finalWordListArray.size();
+		while(dupcontrolsize-1!=0) {
+			String word1 = finalWordListArray.get(dupcontrolsize-1);
+			String word2 = finalWordListArray.get(dupcontrolsize-2);
+			if(word1.contains(word2) || word2.contains(word1)) {
+				boolean isFull = checkFull(word1,word2);
+				if(isFull) {
+					finalWordListArray.remove(dupcontrolsize-1);
+				}
+			}
+			dupcontrolsize--;
+		}
+		String lastFinalWord =null;
+		for (String str:finalWordListArray) {
+			if(lastFinalWord==null) {
+				lastFinalWord = "";
+				lastFinalWord += str;
+			} else
+				lastFinalWord += " " + str;
+		}
+		return lastFinalWord;
+	}
 	private static void firstqueueControl(ArrayList<String> tmpList) {
-		int i = 0;
+		int i;
 		int j = 0;
 		ArrayList<String> txtCheck1 = new ArrayList<>();
 		ArrayList<String> txtCheck2 = new ArrayList<>();
 		String[] tmpString1;
 		String[] tmpString2;
 		int listSize = tmpList.size();
-		ArrayList<Integer> position = new ArrayList<>();
-		while(i!=listSize)
-		{
-			position.add(0);
-			i++;
-		}
 		i=0;
 		while(i!=listSize)
 		{
@@ -200,12 +217,8 @@ public class MergeApplication {
 				tmpString2 = tmpList.get(j).split(" ");
 				if(i!=j)
 				{
-					for (String tmps:tmpString1) {
-						txtCheck1.add(tmps);
-					}
-					for (String tmps:tmpString2) {
-						txtCheck2.add(tmps);
-					}
+					Collections.addAll(txtCheck1, tmpString1);
+					Collections.addAll(txtCheck2, tmpString2);
 					int boolif = queueIndexControl(txtCheck1, txtCheck2);
 					if(boolif == 1) {
 						String tmpStr1 = tmpList.get(i);
@@ -260,8 +273,8 @@ public class MergeApplication {
 	}
 	private static boolean checkFull(String txtParse2, String txtParse1) {
 		int similarityControl = 0;
-		int lengthShortestWord = 0;
-		int lengthTallestWord = 0;
+		int lengthShortestWord;
+		int lengthTallestWord;
 		int index = 0;
 		if(txtParse2.length()>txtParse1.length())
 		{
@@ -288,13 +301,10 @@ public class MergeApplication {
 		int extra = lengthTallestWord - lengthShortestWord;
 		similarityControl+=extra;
 
-		double similarityControlDouble = Double.valueOf(similarityControl);
-		double lengthTallestWordDouble = Double.valueOf(lengthTallestWord);
+		double similarityControlDouble = (double) similarityControl;
+		double lengthTallestWordDouble = (double) lengthTallestWord;
 		double equality = similarityControlDouble/lengthTallestWordDouble;
-		if (equality >= 3/13.) {
-			return false;
-		}
-		return true;
+		return !(equality >= 3 / 13.);
 	}
 }
 
