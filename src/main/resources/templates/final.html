@@ -7,6 +7,11 @@
     {
         location.href = "http://localhost:8080";
     }
+    function relocate_final()
+    {
+        location.href = "http://localhost:8080/savetext";
+    }
+
 </script>
 <html lang="en">
 <head>
@@ -26,8 +31,7 @@
             </div>
             <div class="col-sm-11 nopadding">
                 <br/>
-                <a class="btn" id="jsonbtn" onclick=""> <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Save </a>
-            </div>
+                <button type="button"  th:onclick="|window.location.href='/godbsave'|" onclick="relocate_final()"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>Save</button></div>
             <div class="col-sm-1 nopadding">
                 <br/>
                 <button class="btn" type="button"  onclick="relocate_home()" id="buttonback"> <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Reuse </button>

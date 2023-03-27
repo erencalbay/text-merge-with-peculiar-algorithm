@@ -21,7 +21,6 @@ public class MergeApplication {
 	public static int temphmany;
 	public static void main(String[] args) {
 		SpringApplication.run(MergeApplication.class, args);
-		//mongoDbConnection();
 	}
 	@RequestMapping(value = "/index")
 	public String index() {
@@ -38,9 +37,17 @@ public class MergeApplication {
 		temphmany = tmpList.size();
 		finalWord = mainAlgs(tmpList);
 		System.out.println("son kelime " +finalWord);
-		mongoDbConnection();
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("final");
+		modelAndView.addObject("message", finalWord);
+		return modelAndView;
+	}
+	@RequestMapping(value="/godbsave")
+	public ModelAndView godbsave(@ModelAttribute User user) {
+		System.out.println("Success");
+		mongoDbConnection();
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("godbsave");
 		modelAndView.addObject("message", finalWord);
 		return modelAndView;
 	}

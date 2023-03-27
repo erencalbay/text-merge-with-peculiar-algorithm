@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script>
+  function relocate_home()
+  {
+    location.href = "http://localhost:8080";
+  }
+  function relocate_final()
+  {
+    location.href = "http://localhost:8080/savetext";
+  }
+</script>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Final</title>
+</head>
+<body>
+<form action="/savetext" method="post" id="form">
+  <div class="panel panel-default">
+    <div class="panel-heading">Text Merge Algorithm Output</div>
+    <div class="panel-heading">Output Merged Text;</div>
+    <div class="panel-body">
+      <div id="education_fields">
+      </div>
+      <div class="col-sm-12 nopadding" style="border:thin solid black">
+        <p id="fulltext" th:text = "${message}"></p>
+      </div>
+      <div class="col-sm-11 nopadding">
+        <br/>
+        <button type="button"  th:onclick="'/godbsave'" onclick=""><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>Save</button></div>
+      <div class="col-sm-1 nopadding">
+        <br/>
+        <button class="btn" type="button"  onclick="relocate_home()" id="buttonback"> <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Reuse </button>
+      </div>
+      <div id = "jsontext"></div>
+      <div class="clear"></div>
+    </div>
+  </div>
+</form>
+</body>
+</html>
