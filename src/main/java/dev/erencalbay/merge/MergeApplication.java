@@ -21,6 +21,7 @@ public class MergeApplication {
 	public static ArrayList<String> wordsList;
 	public static double lastDuration;
 	public static int temphmany;
+	public static int counterOfMerge;
 	public static void main(String[] args) {
 		SpringApplication.run(MergeApplication.class, args);
 	}
@@ -74,7 +75,8 @@ public class MergeApplication {
 				String txt2 = txtCheck2.get(0);
 				boolean isSame = checkFull(txt1,txt2);
 				if(isSame) {
-					finalWord = "Daha Yapılmadı";
+					finalWord = onewordControl(txt1,txt2);
+					return finalWord;
 				}
 				else {
 					finalWord = "Eşleştirme olmadı - Birleştirme yapılamadı.";
@@ -101,6 +103,71 @@ public class MergeApplication {
 		System.out.println(durationtoSecond+" milisaniye.");
 		return finalWord;
 	}
+	private static String onewordControl(String txt1, String txt2) {
+		int i =0;
+		String jointChars = "";
+		int txt1length = txt1.length();
+		int txt2length = txt2.length();
+		int shortest = 0;
+		if(txt1length>txt2length) {
+			shortest = txt2length;
+		}
+		else {
+			shortest = txt1length;
+		}
+		while (i<shortest) {
+			if(txt1.charAt(i)==txt2.charAt(i)) {
+				jointChars+=txt1.charAt(i);
+				i++;
+			}
+		}
+		int jclen = jointChars.length();
+		int firstjclen = jclen;
+		if(txt1length>txt2length) {
+			if(txt1length-txt2length>2) {
+				while(txt1length-jclen-1!=0) {
+					jointChars+=txt1.charAt(jclen);
+					jclen++;
+				}
+				return jointChars;
+			}
+			else {
+				while(txt1length-jclen!=0) {
+					jointChars+=txt1.charAt(jclen);
+					jclen++;
+				}
+				if(txt2length != firstjclen) {
+					while (txt2length - firstjclen - 1 != 0) {
+						jointChars += txt2.charAt(firstjclen);
+						firstjclen++;
+					}
+				}
+				return jointChars;
+			}
+		}
+		else {
+			if(txt2length-txt1length>2) {
+				while(txt2length-jclen-1!=0) {
+					jointChars+=txt2.charAt(jclen);
+					jclen++;
+				}
+				return jointChars;
+			}
+			else {
+				while(txt2length-jclen!=0) {
+					jointChars+=txt2.charAt(jclen);
+					jclen++;
+				}
+				if(txt1length != firstjclen) {
+				while(txt1length-firstjclen-1!=0) {
+					jointChars+=txt1.charAt(firstjclen);
+					firstjclen++;
+				}
+				}
+				return jointChars;
+			}
+		}
+	}
 	private static String mainMergeFunc(ArrayList<String> tmpList) {
 		int hmanyText = tmpList.size();
 		int i = 0;
@@ -122,13 +189,11 @@ public class MergeApplication {
 		return finalWord;
 	}
 	private static void mongoDbConnection() {
-		MongoDatabase db;
-		try (MongoClient client = MongoClients.create("mongodb+srv://erencalbay:05kWvvz45Ohjx8E2@javaweb.jyy216v.mongodb.net/test")) {
-			db = client.getDatabase("testDB");
-		}
+		MongoClient client = MongoClients.create("mongodb+srv://erencalbay:05kWvvz45Ohjx8E2@javaweb.jyy216v.mongodb.net/test");
+		MongoDatabase db = client.getDatabase("testDB");
 		MongoCollection col = db.getCollection("testCollection");
 		Document sampleDoc = new Document();
-		int ct = 1;
+		int ct = 0;
 		for (String word : wordsList) {
 			sampleDoc.append("Metin " + ct, word);
 			ct++;
@@ -176,8 +241,7 @@ public class MergeApplication {
 	}
 	private static String duplicateControl(String finalWord) {
 		String[] finalWordList = finalWord.split(" ");
-		ArrayList<String> finalWordListArray = new ArrayList<>();
-		finalWordListArray.addAll(Arrays.asList(finalWordList));
+		ArrayList<String> finalWordListArray = new ArrayList<>(Arrays.asList(finalWordList));
 		int dupcontrolsize = finalWordListArray.size();
 		while(dupcontrolsize-1!=0) {
 			String word1 = finalWordListArray.get(dupcontrolsize-1);
@@ -301,10 +365,13 @@ public class MergeApplication {
 		int extra = lengthTallestWord - lengthShortestWord;
 		similarityControl+=extra;
 
-		double similarityControlDouble = (double) similarityControl;
-		double lengthTallestWordDouble = (double) lengthTallestWord;
+		double similarityControlDouble = similarityControl;
+		double lengthTallestWordDouble = lengthTallestWord;
 		double equality = similarityControlDouble/lengthTallestWordDouble;
-		return !(equality >= 3 / 13.);
+		if(equality >= 3 / 17.) {
+			return false;
+		}
+		return true;
 	}
 }
 
