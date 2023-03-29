@@ -4,7 +4,7 @@
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 <script>
     var room = 0;
-    function education_fields() {
+    function plus() {
         room++;
         var objTo = document.getElementById('education_fields')
         var divtest = document.createElement("div");
@@ -19,7 +19,7 @@
             '       <div class="input-group">' +
             '           <input type="text" class="form-control" id="Degree" name="Texts[]" value="" placeholder="Text">' +
             '           <div class="input-group-btn"> ' +
-            '           <button class="btn btn-danger" type="button" onclick="remove_education_fields('+ room +');"> <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> </button>' +
+            '           <button class="btn btn-danger" type="button" onclick="remove('+ room +');"> <span class="glyphicon glyphicon-minus" aria-hidden="true"></span> </button>' +
             '           </div>' +
             '       </div>' +
             '   </div>' +
@@ -27,7 +27,7 @@
             '<div class="clear"></div>';
         objTo.appendChild(divtest)
     }
-    function remove_education_fields(rid) {
+    function remove(rid) {
         $('.removeclass'+rid).remove();
         room--;
     }
@@ -50,7 +50,7 @@
         <div class="col-sm-4 nopadding">
             <div class="form-group">
                 <div class="input-group">
-                    <button class="btn btn-success" type="button"  onclick="education_fields();"> <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> </button>
+                    <button class="btn btn-success" type="button"  onclick="plus();"> <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> </button>
                 </div>
             </div>
         </div>

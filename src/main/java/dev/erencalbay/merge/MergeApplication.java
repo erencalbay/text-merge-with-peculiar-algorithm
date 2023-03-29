@@ -43,6 +43,9 @@ public class MergeApplication {
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("final");
 		modelAndView.addObject("message", finalWord);
+		String durationFinal = String.valueOf(lastDuration);
+		durationFinal+=" ms.";
+		modelAndView.addObject("duration", durationFinal);
 		return modelAndView;
 	}
 	@RequestMapping(value="/godbsave")
@@ -52,6 +55,9 @@ public class MergeApplication {
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("godbsave");
 		modelAndView.addObject("message", finalWord);
+		String durationFinal = String.valueOf(lastDuration);
+		durationFinal+=" ms.";
+		modelAndView.addObject("duration", durationFinal);
 		return modelAndView;
 	}
 	public static String mainAlgs(ArrayList<String> tmpList) {
@@ -73,14 +79,11 @@ public class MergeApplication {
 			if(txtCheck1.size() == 1 && txtCheck2.size() == 1) {
 				String txt1 = txtCheck1.get(0);
 				String txt2 = txtCheck2.get(0);
-				boolean isSame = checkFull(txt1,txt2);
-				if(isSame) {
-					finalWord = onewordControl(txt1,txt2);
-					return finalWord;
-				}
-				else {
+				finalWord = onewordControl(txt1,txt2);
+				if(finalWord==null) {
 					finalWord = "Eşleştirme olmadı - Birleştirme yapılamadı.";
 				}
+				return finalWord;
 			}
 			else {
 				isContain = checkContains(txtCheck1, txtCheck2);
@@ -99,6 +102,9 @@ public class MergeApplication {
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime); // hesaplama
 		double durationtoSecond = (double) duration / 1_000_000;
+		if(durationtoSecond<0.000001) {
+			durationtoSecond = 0.0001;
+		}
 		lastDuration = durationtoSecond;
 		System.out.println(durationtoSecond+" milisaniye.");
 		return finalWord;
@@ -108,18 +114,19 @@ public class MergeApplication {
 		String jointChars = "";
 		int txt1length = txt1.length();
 		int txt2length = txt2.length();
-		int shortest = 0;
-		if(txt1length>txt2length) {
-			shortest = txt2length;
-		}
-		else {
-			shortest = txt1length;
+		int shortest = Math.min(txt1length, txt2length);
+		int j = 2;
+		while(j!=0) {
+			if(txt1.charAt(j)!=txt2.charAt(j)) {
+				return jointChars;
+			}
+			j--;
 		}
 		while (i<shortest) {
 			if(txt1.charAt(i)==txt2.charAt(i)) {
 				jointChars+=txt1.charAt(i);
-				i++;
 			}
+			i++;
 		}
 		int jclen = jointChars.length();
 		int firstjclen = jclen;
@@ -159,7 +166,7 @@ public class MergeApplication {
 					jclen++;
 				}
 				if(txt1length != firstjclen) {
-				while(txt1length-firstjclen-1!=0) {
+				while(txt1length-firstjclen!=0) {
 					jointChars+=txt1.charAt(firstjclen);
 					firstjclen++;
 				}
@@ -182,7 +189,6 @@ public class MergeApplication {
 			tmpString2 = tmpList.get(i+1).split(" ");
 			Collections.addAll(txtCheck1, tmpString1);
 			Collections.addAll(txtCheck2, tmpString2);
-
 			finalWord = findSameSub(txtCheck1,txtCheck2);
 			i++;
 		}
@@ -368,7 +374,7 @@ public class MergeApplication {
 		double similarityControlDouble = similarityControl;
 		double lengthTallestWordDouble = lengthTallestWord;
 		double equality = similarityControlDouble/lengthTallestWordDouble;
-		if(equality >= 3 / 17.) {
+		if(equality >= 4 / 13.) {
 			return false;
 		}
 		return true;
