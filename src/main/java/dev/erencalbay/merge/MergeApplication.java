@@ -16,7 +16,7 @@ import java.util.Collections;
 
 @SpringBootApplication
 @RestController
-public class MergeApplication {
+public class MergeApplication{
 	public static String finalWord;
 	public static ArrayList<String> wordsList;
 	public static double lastDuration;
@@ -66,6 +66,7 @@ public class MergeApplication {
 		int i = 0;
 		long startTime = System.nanoTime();
 		boolean isContain = false;
+		counterOfMerge = 0;
 		while(hmanyText-1!=i)
 		{
 			ArrayList<String> txtCheck1 = new ArrayList<>();
@@ -76,11 +77,15 @@ public class MergeApplication {
 			tmpString2 = tmpList.get(i+1).split(" ");
 			Collections.addAll(txtCheck1, tmpString1);
 			Collections.addAll(txtCheck2, tmpString2);
+			if(hmanyText<2) {
+				finalWord = "Lütfen iki veya daha fazla metin girin.";
+				return finalWord;
+			}
 			if(txtCheck1.size() == 1 && txtCheck2.size() == 1) {
 				String txt1 = txtCheck1.get(0);
 				String txt2 = txtCheck2.get(0);
 				finalWord = onewordControl(txt1,txt2);
-				if(finalWord==null) {
+				if(finalWord.isEmpty()) {
 					finalWord = "Eşleştirme olmadı - Birleştirme yapılamadı.";
 				}
 				return finalWord;
@@ -91,6 +96,17 @@ public class MergeApplication {
 			System.out.println(isContain);
 			i++;
 		}
+        int cindex = 0;
+        while(cindex!=wordsList.size()-1) {
+            String word1 = wordsList.get(cindex);
+            String word2 = wordsList.get(cindex+1);
+            if(word1.contains(word2)) {
+                wordsList.remove(cindex+1);
+            }
+            cindex++;
+        }
+        temphmany = wordsList.size();
+        System.out.println("bak"+wordsList);
 		if(isContain) {
 			firstqueueControl(tmpList);
 			finalWord = mainMergeFunc(wordsList);
@@ -144,7 +160,7 @@ public class MergeApplication {
 					jclen++;
 				}
 				if(txt2length != firstjclen) {
-					while (txt2length - firstjclen - 1 != 0) {
+					while (txt2length - firstjclen!= 0) {
 						jointChars += txt2.charAt(firstjclen);
 						firstjclen++;
 					}
@@ -316,7 +332,7 @@ public class MergeApplication {
 					if(isFull) {
 						int txt1index = txtCheck1.indexOf(txt1);
 						int txt2index = txtCheck2.indexOf(txt2);
-						if(txt1index>txt2index) {
+						if(txt1index>=txt2index) {
 							return 0;
 						}
 						else {
